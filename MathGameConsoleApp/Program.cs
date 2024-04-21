@@ -1,65 +1,49 @@
-﻿namespace MathGameConsoleApp;
+﻿
+namespace MathGameConsoleApp;
 
 internal class Program
 {
+    const int GameRounds = 5;
+
+    static Random Random = new Random();
+
     static void Main()
     {
-        while (!MainMenu()) 
+        while (true)
         {
-            Console.WriteLine();
-        }
-    }
-
-    public static bool MainMenu()
-    {
-        WriteMainMenu();
-        var readingKey = true;
-        while (readingKey)
-        {
+            WriteMainMenu();
             var key = Console.ReadKey();
             switch (key.KeyChar)
             {
                 case 'v':
                 case 'V':
-                    readingKey = false;
-                    Console.WriteLine(key.ToString());
                     break;
                 case 'a':
                 case 'A':
-                    readingKey = false;
-                    Console.WriteLine(key.ToString());
+                    AdditionGame();
+                    Console.Clear();
                     break;
                 case 's':
                 case 'S':
-                    readingKey = false;
-                    Console.WriteLine(key.ToString());
                     break;
                 case 'm':
                 case 'M':
-                    readingKey = false;
-                    Console.WriteLine(key.ToString());
                     break;
                 case 'd':
                 case 'D':
-                    readingKey = false;
-                    Console.WriteLine(key.ToString());
                     break;
                 case 'q':
                 case 'Q':
-                    Console.WriteLine(key.ToString());
-                    return true;
+                    return;
                 default:
                     Console.Clear();
                     Console.WriteLine(key.KeyChar);
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Invalid selection. Please try again.");
                     Console.ForegroundColor = ConsoleColor.White;
-                    WriteMainMenu();
                     break;
             }
         }
-
-        return false;
     }
 
     public static void WriteMainMenu()
@@ -72,5 +56,45 @@ internal class Program
         Console.WriteLine("D - Division");
         Console.WriteLine("Q - Quit the program");
         Console.WriteLine("-------------------------------------------");
+    }
+
+    private static void AdditionGame()
+    {
+        int score = 0;
+        for (int i = 0; i < GameRounds; i++)
+        {
+            Console.Clear();
+            Console.WriteLine($"Addition Game Round {i + 1} of {GameRounds}");
+            int a = Random.Next(1, 101);
+            int b = Random.Next(1, 101);
+            Console.WriteLine($"{a} + {b} = ?");
+            var answer = Console.ReadLine();
+            int intAnswer;
+            while (answer is null || !int.TryParse(answer, out intAnswer))
+            {
+                Console.WriteLine("Answer is not a number, please try again.");
+            }
+
+            if (intAnswer == a + b)
+            {
+                Console.Write($"{answer} is correct!");
+                score++;
+            }
+            else
+            {
+                Console.Write($"{answer} is intcorrect, the correct answer is {a + b}.");
+            }
+
+            if (i + 1 < GameRounds)
+            {
+                Console.WriteLine(" Type any key for the next question");
+                Console.ReadKey();
+            }
+        }
+
+        Console.WriteLine();
+        Console.WriteLine($"Game over. Your final score is {score}/{GameRounds}.");
+        Console.WriteLine("Press any key to go back to the main menu.");
+        Console.ReadKey();
     }
 }
