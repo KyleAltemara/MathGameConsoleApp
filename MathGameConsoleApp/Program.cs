@@ -1,9 +1,8 @@
-﻿
-namespace MathGameConsoleApp;
+﻿namespace MathGameConsoleApp;
 
 internal class Program
 {
-    const int GameRounds = 3;
+    static int GameRounds = 5;
 
     static readonly Random Random = new();
 
@@ -50,6 +49,27 @@ internal class Program
                     gameHistory.Add(PlayMathGame(GameType.Division));
                     Console.Clear();
                     break;
+                case 'r':
+                case 'R':
+                    gameHistory.Add(PlayMathGame(GameType.Random));
+                    Console.Clear();
+                    break;
+                case 'g':
+                case 'G':
+                    Console.Clear();
+                    Console.Write("Enter the number of game rounds: ");
+                    if (int.TryParse(Console.ReadLine(), out int rounds))
+                    {
+                        GameRounds = rounds;
+                        Console.WriteLine($"Game rounds set to {GameRounds}.");
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Invalid number. Please try again.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    break;
                 case 'q':
                 case 'Q':
                     return;
@@ -77,6 +97,8 @@ internal class Program
         Console.WriteLine("S - Subraction");
         Console.WriteLine("M - Multiplication");
         Console.WriteLine("D - Division");
+        Console.WriteLine("R - Random Game");
+        Console.WriteLine("G - Set Game Rounds");
         Console.WriteLine("Q - Quit the program");
         Console.WriteLine("-------------------------------------------");
     }
@@ -90,7 +112,7 @@ internal class Program
             {
                 var game = gameHistory[i];
                 var gameType = game.GameType;
-                Console.WriteLine($"[{i}] Game {i + 1}: {nameof(gameType)} game, score {game.Score}/{GameRounds}");
+                Console.WriteLine($"[{i}] Game {i + 1}: {gameType} game, score {game.Score}/{GameRounds}");
             }
 
             Console.WriteLine("[E]xit to main menu, or enter game id to see more details");
@@ -108,14 +130,13 @@ internal class Program
                     Console.Clear();
                     var game = gameHistory[gameId];
                     var gameType = game.GameType;
-                    Console.WriteLine($"[{gameId}] Game {gameId + 1}: {nameof(gameType)} game, score {game.Score}/{GameRounds}");
-                    var mathSymbol = GetMathSymbol(gameType);
+                    Console.WriteLine($"[{gameId}] Game {gameId + 1}: {gameType} game, score {game.Score}/{GameRounds}");
                     for (int i = 0; i < GameRounds; i++)
                     {
-                        (int a, int b) = game.Questions[i];
+                        string question = game.Questions[i];
                         int anwser = game.Answers[i];
                         int correctAnwser = game.CorrectAnswers[i];
-                        Console.Write($"{a} {mathSymbol} {b} = ");
+                        Console.Write(question);
                         if (anwser == correctAnwser)
                         {
                             Console.Write($"{anwser}");
@@ -149,18 +170,20 @@ internal class Program
     private static MathGame PlayMathGame(GameType gameType)
     {
         var game = new MathGame { GameType = gameType };
-        var mathSymbol = GetMathSymbol(gameType);
         int score = 0;
         for (int i = 0; i < GameRounds; i++)
         {
+            var gameRoundType = gameType == GameType.Random ? GetRandomGameType() : gameType;
+            var mathSymbol = GetMathSymbol(gameRoundType);
             Console.Clear();
-            Console.WriteLine($"Addition Game Round {i + 1} of {GameRounds}");
+            Console.WriteLine($"{gameType} Game Round {i + 1} of {GameRounds}");
             int a, b, correctAnswer;
             do
             {
-                (a, b, correctAnswer) = GetQuestion(gameType);
+                (a, b, correctAnswer) = GetQuestion(gameRoundType);
             } while (game.CorrectAnswers.Contains(correctAnswer));
-            Console.WriteLine($"{a} {mathSymbol} {b} = ?");
+            string question = $"{a} {mathSymbol} {b} = ";
+            Console.WriteLine(question + "?");
             var answer = Console.ReadLine();
             int intAnswer;
             while (answer is null || !int.TryParse(answer, out intAnswer))
@@ -169,7 +192,7 @@ internal class Program
                 answer = Console.ReadLine();
             }
 
-            game.Questions.Add((a, b));
+            game.Questions.Add(question);
             game.CorrectAnswers.Add(correctAnswer);
             game.Answers.Add(intAnswer);
             if (intAnswer == correctAnswer)
@@ -179,7 +202,7 @@ internal class Program
             }
             else
             {
-                Console.Write($"{answer} is intcorrect, the correct answer is {correctAnswer}.");
+                Console.Write($"{answer} is incorrect, the correct answer is {correctAnswer}.");
             }
 
             if (i + 1 < GameRounds)
@@ -239,5 +262,11 @@ internal class Program
             default:
                 throw new NotImplementedException();
         }
+    }
+
+    private static GameType GetRandomGameType()
+    {
+        var values = Enum.GetValues(typeof(GameType));
+        return (GameType)values.GetValue(Random.Next(values.Length));
     }
 }
