@@ -57,17 +57,23 @@ internal class Program
                 case 'g':
                 case 'G':
                     Console.Clear();
-                    Console.Write("Enter the number of game rounds: ");
-                    if (int.TryParse(Console.ReadLine(), out int rounds))
+                    int rounds;
+                    bool validInput = false;
+                    while (!validInput)
                     {
-                        GameRounds = rounds;
-                        Console.WriteLine($"Game rounds set to {GameRounds}.");
-                    }
-                    else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Invalid number. Please try again.");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write("Enter the number of game rounds: ");
+                        if (int.TryParse(Console.ReadLine(), out rounds))
+                        {
+                            validInput = true;
+                            GameRounds = rounds;
+                            Console.WriteLine($"Game rounds set to {GameRounds}.");
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Invalid number. Please try again.");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
                     }
                     break;
                 case 'q':
